@@ -10,6 +10,7 @@ export interface CoinData {
   marketCapUsd: string;
   volumeUsd24Hr: string;
   supply: string;
+  sparkline: number[];
 }
 
 export interface MarketGlobal {
@@ -25,89 +26,160 @@ export interface FearGreedData {
   classification: string;
 }
 
-const COINCAP_BASE = "https://api.coincap.io/v2";
+export interface TrendingCoin {
+  id: string;
+  name: string;
+  symbol: string;
+  marketCapRank: number;
+  score: number;
+}
 
-// Fetch top coins from CoinCap (free, no key)
+const COINGECKO_BASE = "https://api.coingecko.com/api/v3";
+
+async function fetchJson<T>(url: string): Promise<T> {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 12000);
+
+  try {
+    const res = await fetch(url, { signal: controller.signal });
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status} while requesting ${url}`);
+    }
+    return (await res.json()) as T;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
 export function useCoins() {
   return useQuery<CoinData[]>({
     queryKey: ["coins"],
     queryFn: async () => {
-      const res = await fetch(`${COINCAP_BASE}/assets?limit=10`);
-      if (!res.ok) throw new Error("Failed to fetch coins");
-      const json = await res.json();
-      return json.data as CoinData[];
-    },
-    refetchInterval: 30000, // refresh every 30s
-    staleTime: 15000,
-  });
-}
-
-// Fetch 24h history for sparkline
-export function useCoinHistory(coinId: string) {
-  return useQuery<{ priceUsd: string; time: number }[]>({
-    queryKey: ["coinHistory", coinId],
-    queryFn: async () => {
-      const end = Date.now();
-      const start = end - 24 * 60 * 60 * 1000;
-      const res = await fetch(
-        `${COINCAP_BASE}/assets/${coinId}/history?interval=h1&start=${start}&end=${end}`
+      const data = await fetchJson<
+        Array<{
+          id: string;
+          symbol: string;
+          name: string;
+          market_cap_rank: number;
+          current_price: number;
+          price_change_percentage_24h: number;
+          market_cap: number;
+          total_volume: number;
+          circulating_supply: number;
+          sparkline_in_7d?: { price: number[] };
+        }>
+      >(
+        `${COINGECKO_BASE}/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=10&page=1&sparkline=true&price_change_percentage=24h`
       );
-      if (!res.ok) throw new Error("Failed to fetch history");
-      const json = await res.json();
-      return json.data;
+
+      return data.map((coin) => ({
+        id: coin.id,
+        rank: String(coin.market_cap_rank ?? 0),
+        symbol: coin.symbol.toUpperCase(),
+        name: coin.name,
+        priceUsd: String(coin.current_price ?? 0),
+        changePercent24Hr: String(coin.price_change_percentage_24h ?? 0),
+        marketCapUsd: String(coin.market_cap ?? 0),
+        volumeUsd24Hr: String(coin.total_volume ?? 0),
+        supply: String(coin.circulating_supply ?? 0),
+        sparkline: coin.sparkline_in_7d?.price ?? [],
+      }));
     },
-    staleTime: 60000,
+    refetchInterval: 60000,
+    staleTime: 20000,
+    retry: 1,
+    refetchOnWindowFocus: false,
   });
 }
 
-// Market global stats derived from coin data
 export function useMarketGlobal() {
   return useQuery<MarketGlobal>({
     queryKey: ["marketGlobal"],
     queryFn: async () => {
-      const res = await fetch(`${COINCAP_BASE}/assets?limit=100`);
-      if (!res.ok) throw new Error("Failed to fetch global data");
-      const json = await res.json();
-      const coins = json.data as CoinData[];
-
-      const totalMarketCap = coins.reduce((sum: number, c: CoinData) => sum + parseFloat(c.marketCapUsd || "0"), 0);
-      const totalVolume = coins.reduce((sum: number, c: CoinData) => sum + parseFloat(c.volumeUsd24Hr || "0"), 0);
-      const btcCoin = coins.find((c: CoinData) => c.id === "bitcoin");
-      const btcDominance = btcCoin ? (parseFloat(btcCoin.marketCapUsd) / totalMarketCap) * 100 : 0;
+      const json = await fetchJson<{
+        data: {
+          active_cryptocurrencies: number;
+          total_market_cap: { usd: number };
+          total_volume: { usd: number };
+          market_cap_percentage: { btc: number };
+          market_cap_change_percentage_24h_usd?: number;
+        };
+      }>(`${COINGECKO_BASE}/global`);
 
       return {
-        totalMarketCapUsd: totalMarketCap,
-        totalVolume24Hr: totalVolume,
-        btcDominance,
-        activeCoins: coins.length,
-        totalMarketCapChange: parseFloat(btcCoin?.changePercent24Hr || "0"),
+        totalMarketCapUsd: json.data.total_market_cap?.usd ?? 0,
+        totalVolume24Hr: json.data.total_volume?.usd ?? 0,
+        btcDominance: json.data.market_cap_percentage?.btc ?? 0,
+        activeCoins: json.data.active_cryptocurrencies ?? 0,
+        totalMarketCapChange: json.data.market_cap_change_percentage_24h_usd ?? 0,
       };
     },
-    refetchInterval: 30000,
-    staleTime: 15000,
+    refetchInterval: 120000,
+    staleTime: 30000,
+    retry: 1,
+    refetchOnWindowFocus: false,
   });
 }
 
-// Fear & Greed Index from alternative.me
+export function useTopMovers() {
+  return useQuery<TrendingCoin[]>({
+    queryKey: ["topMovers"],
+    queryFn: async () => {
+      const data = await fetchJson<
+        Array<{
+          id: string;
+          name: string;
+          symbol: string;
+          market_cap_rank: number;
+          price_change_percentage_24h: number;
+        }>
+      >(
+        `${COINGECKO_BASE}/coins/markets?vs_currency=usd&order=volume_desc&per_page=50&page=1&sparkline=false&price_change_percentage=24h`
+      );
+
+      return [...data]
+        .sort(
+          (a, b) =>
+            Math.abs(b.price_change_percentage_24h ?? 0) -
+            Math.abs(a.price_change_percentage_24h ?? 0)
+        )
+        .slice(0, 6)
+        .map((coin) => ({
+          id: coin.id,
+          name: coin.name,
+          symbol: coin.symbol.toUpperCase(),
+          marketCapRank: coin.market_cap_rank ?? 0,
+          score: coin.price_change_percentage_24h ?? 0,
+        }));
+    },
+    refetchInterval: 120000,
+    staleTime: 30000,
+    retry: 1,
+    refetchOnWindowFocus: false,
+  });
+}
+
 export function useFearGreedIndex() {
   return useQuery<FearGreedData>({
     queryKey: ["fearGreed"],
     queryFn: async () => {
-      const res = await fetch("https://api.alternative.me/fng/?limit=1");
-      if (!res.ok) throw new Error("Failed to fetch fear & greed");
-      const json = await res.json();
-      const d = json.data[0];
+      const json = await fetchJson<{
+        data: Array<{ value: string; value_classification: string }>;
+      }>("https://api.alternative.me/fng/?limit=1");
+
+      const row = json.data[0];
       return {
-        value: parseInt(d.value),
-        classification: d.value_classification,
+        value: Number.parseInt(row?.value ?? "50", 10),
+        classification: row?.value_classification ?? "Neutral",
       };
     },
-    refetchInterval: 300000, // 5 min
+    refetchInterval: 300000,
     staleTime: 120000,
+    retry: 1,
+    refetchOnWindowFocus: false,
   });
 }
 
-// Format large numbers
 export function formatUsd(value: number): string {
   if (value >= 1e12) return `$${(value / 1e12).toFixed(2)}T`;
   if (value >= 1e9) return `$${(value / 1e9).toFixed(1)}B`;
@@ -116,8 +188,11 @@ export function formatUsd(value: number): string {
 }
 
 export function formatPrice(priceStr: string): string {
-  const price = parseFloat(priceStr);
-  if (price >= 1000) return `$${price.toLocaleString(undefined, { maximumFractionDigits: 2 })}`;
+  const price = Number.parseFloat(priceStr);
+  if (!Number.isFinite(price)) return "$0.00";
+  if (price >= 1000) {
+    return `$${price.toLocaleString(undefined, { maximumFractionDigits: 2 })}`;
+  }
   if (price >= 1) return `$${price.toFixed(2)}`;
   if (price >= 0.01) return `$${price.toFixed(4)}`;
   return `$${price.toFixed(6)}`;
