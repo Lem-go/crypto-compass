@@ -1,18 +1,25 @@
 import { forwardRef, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { useFearGreedIndex } from "@/hooks/useCryptoData";
 
-const LABELS: Record<string, string> = {
-  "Extreme Fear": "خوف شديد",
-  Fear: "خوف",
-  Neutral: "محايد",
-  Greed: "طمع",
-  "Extreme Greed": "طمع شديد",
-};
-
 const SentimentGauge = forwardRef<HTMLDivElement>((_, ref) => {
+  const { t, i18n } = useTranslation();
   const { data, isLoading } = useFearGreedIndex();
   const value = data?.value ?? 50;
-  const label = data ? LABELS[data.classification] || data.classification : "جاري التحميل...";
+
+  const getLabelForClassification = (classification: string): string => {
+    const keyMap: Record<string, string> = {
+      "Extreme Fear": "sentimentGauge.extremefear",
+      "Fear": "sentimentGauge.fear",
+      "Neutral": "sentimentGauge.neutral",
+      "Greed": "sentimentGauge.greed",
+      "Extreme Greed": "sentimentGauge.extremegreed",
+    };
+
+    return t(keyMap[classification] || "sentimentGauge.neutral", { defaultValue: classification });
+  };
+
+  const label = data ? getLabelForClassification(data.classification) : (i18n.language === 'ar' ? 'جاري التحميل...' : 'Loading...');
 
   const color =
     value >= 75
@@ -29,8 +36,7 @@ const SentimentGauge = forwardRef<HTMLDivElement>((_, ref) => {
 
   return (
     <div ref={ref} className={`glass-card p-6 flex flex-col items-center ${isLoading ? "animate-pulse" : ""}`}>
-      <h3 className="text-lg font-semibold mb-1">مؤشر الخوف والطمع</h3>
-      <p className="text-xs text-muted-foreground mb-6">بيانات مباشرة من Alternative.me</p>
+      <h3 className="text-lg font-semibold mb-1">{t("sentimentGauge.title")}</h3>
 
       <div className="relative w-48 h-28 mb-4">
         <svg viewBox="0 0 200 110" className="w-full h-full">

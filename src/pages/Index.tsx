@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import Header from "@/components/Header";
 import MarketTicker from "@/components/MarketTicker";
 import MarketStats from "@/components/MarketStats";
@@ -9,6 +10,7 @@ import CryptoConverter from "@/components/CryptoConverter";
 import NewsFeed from "@/components/NewsFeed";
 
 const Index = () => {
+  const { t } = useTranslation();
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -18,10 +20,10 @@ const Index = () => {
       <section id="stats" className="container mx-auto px-4 pt-10 pb-6 scroll-mt-20">
         <div className="mb-8">
           <h1 className="text-3xl md:text-4xl font-bold tracking-tight">
-            مرحباً بك في <span className="text-gradient-primary">CryptoLens</span>
+            {t("header.welcome")} <span className="text-gradient-primary">CryptoLens</span>
           </h1>
           <p className="text-muted-foreground mt-2 max-w-lg">
-            تابع مشاعر السوق، أسعار العملات الرقمية، وأحدث البيانات في مكان واحد.
+            {t("header.subtitle")}
           </p>
         </div>
         <MarketStats />
@@ -66,12 +68,8 @@ const Index = () => {
               <span className="text-sm font-bold">CryptoLens</span>
             </div>
             <p className="text-xs text-muted-foreground text-center">
-              البيانات من CoinGecko و Alternative.me — يتم تحديثها تلقائياً • CryptoLens © 2026
+              {t("footer.copyright")}
             </p>
-            <div className="flex items-center gap-4">
-              <a href="https://www.coingecko.com" target="_blank" rel="noopener noreferrer" className="text-xs text-muted-foreground hover:text-primary transition-colors">CoinGecko</a>
-              <a href="https://alternative.me/crypto/fear-and-greed-index/" target="_blank" rel="noopener noreferrer" className="text-xs text-muted-foreground hover:text-primary transition-colors">Fear & Greed</a>
-            </div>
           </div>
         </div>
       </footer>

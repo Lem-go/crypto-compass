@@ -1,7 +1,9 @@
+import { useTranslation } from "react-i18next";
 import { useMarketGlobal } from "@/hooks/useCryptoData";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 
 const DominanceChart = () => {
+  const { t, i18n } = useTranslation();
   const { data, isLoading } = useMarketGlobal();
 
   if (isLoading || !data) {
@@ -16,14 +18,14 @@ const DominanceChart = () => {
   const others = 100 - btc;
 
   const chartData = [
-    { name: "Bitcoin", value: Number(btc.toFixed(1)), color: "hsl(38, 90%, 55%)" },
-    { name: "أخرى", value: Number(others.toFixed(1)), color: "hsl(220, 14%, 25%)" },
+    { name: i18n.language === 'ar' ? "البيتكوين" : "Bitcoin", value: Number(btc.toFixed(1)), color: "hsl(38, 90%, 55%)" },
+    { name: i18n.language === 'ar' ? "أخرى" : "Others", value: Number(others.toFixed(1)), color: "hsl(220, 14%, 25%)" },
   ];
 
   return (
     <div className="glass-card p-6">
-      <h3 className="text-lg font-semibold mb-1">هيمنة البيتكوين</h3>
-      <p className="text-xs text-muted-foreground mb-4">نسبة القيمة السوقية للبيتكوين من إجمالي السوق</p>
+      <h3 className="text-lg font-semibold mb-1">{t("dominanceChart.title")}</h3>
+      <p className="text-xs text-muted-foreground mb-4">{i18n.language === 'ar' ? 'نسبة القيمة السوقية للبيتكوين من إجمالي السوق' : 'Bitcoin market cap dominance percentage'}</p>
 
       <div className="flex items-center gap-4">
         <div className="w-28 h-28">

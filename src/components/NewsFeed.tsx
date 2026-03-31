@@ -1,22 +1,24 @@
 import { forwardRef } from "react";
 import { Flame, TrendingUp, Zap, Star } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useTopMovers } from "@/hooks/useCryptoData";
 
 const icons = [Flame, TrendingUp, Zap, Star, Flame, TrendingUp];
 
 const NewsFeed = forwardRef<HTMLDivElement>((_, ref) => {
+  const { t, i18n } = useTranslation();
   const { data: movers, isLoading, isError } = useTopMovers();
 
   return (
     <div ref={ref} className="glass-card p-6">
-      <h3 className="text-lg font-semibold mb-1">الأكثر تحركاً</h3>
+      <h3 className="text-lg font-semibold mb-1">{t("newsFeed.title")}</h3>
       <p className="text-xs text-muted-foreground mb-5">
-        العملات الأعلى نشاطاً خلال 24 ساعة
+        {i18n.language === 'ar' ? 'العملات الأعلى نشاطاً خلال 24 ساعة' : 'Most active coins in the last 24 hours'}
       </p>
 
       {isError && (
         <div className="text-sm text-destructive mb-4">
-          تعذر تحميل قائمة النشاط الآن.
+          {i18n.language === 'ar' ? 'تعذر تحميل قائمة النشاط الآن.' : 'Unable to load activity list now.'}
         </div>
       )}
 
@@ -54,7 +56,7 @@ const NewsFeed = forwardRef<HTMLDivElement>((_, ref) => {
                         {coin.symbol}
                       </span>
                       <span className="text-[10px] text-muted-foreground">
-                        المرتبة #{coin.marketCapRank}
+                        {i18n.language === 'ar' ? 'المرتبة' : 'Rank'} #{coin.marketCapRank}
                       </span>
                     </div>
                   </div>
