@@ -1,6 +1,36 @@
-import { Search, Bell } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
+import { Search, X } from "lucide-react";
+import { useCoins, formatPrice } from "@/hooks/useCryptoData";
+
+const NAV_ITEMS = [
+  { label: "لوحة التحكم", target: "stats" },
+  { label: "العملات", target: "coins" },
+  { label: "مؤشر السوق", target: "sentiment" },
+  { label: "الأكثر تحركاً", target: "movers" },
+];
 
 const Header = () => {
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [query, setQuery] = useState("");
+  const inputRef = useRef<HTMLInputElement>(null);
+  const { data: coins } = useCoins();
+
+  useEffect(() => {
+    if (searchOpen) inputRef.current?.focus();
+  }, [searchOpen]);
+
+  const filtered = query.trim()
+    ? coins?.filter(
+        (c) =>
+          c.name.toLowerCase().includes(query.toLowerCase()) ||
+          c.symbol.toLowerCase().includes(query.toLowerCase())
+      ) ?? []
+    : [];
+
+  const scrollTo = (id: string) => {
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
   return (
     <header className="sticky top-0 z-50 backdrop-blur-xl bg-background/70 border-b border-border/40">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
@@ -14,20 +44,75 @@ const Header = () => {
         </div>
 
         <nav className="hidden md:flex items-center gap-6">
-          <a href="#" className="text-sm font-medium text-foreground hover:text-primary transition-colors">لوحة التحكم</a>
-          <a href="#" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">المحفظة</a>
-          <a href="#" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">الأخبار</a>
-          <a href="#" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">التنبيهات</a>
+          {NAV_ITEMS.map((item) => (
+            <button
+              key={item.target}
+              onClick={() => scrollTo(item.target)}
+              className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
+            >
+              {item.label}
+            </button>
+          ))}
         </nav>
 
-        <div className="flex items-center gap-3">
-          <button className="w-9 h-9 rounded-lg bg-secondary flex items-center justify-center hover:bg-secondary/80 transition-colors">
-            <Search className="w-4 h-4 text-muted-foreground" />
+        <div className="relative">
+          <button
+            onClick={() => {
+              setSearchOpen(!searchOpen);
+              setQuery("");
+            }}
+            className="w-9 h-9 rounded-lg bg-secondary flex items-center justify-center hover:bg-secondary/80 transition-colors"
+          >
+            {searchOpen ? <X className="w-4 h-4 text-muted-foreground" /> : <Search className="w-4 h-4 text-muted-foreground" />}
           </button>
-          <button className="w-9 h-9 rounded-lg bg-secondary flex items-center justify-center hover:bg-secondary/80 transition-colors relative">
-            <Bell className="w-4 h-4 text-muted-foreground" />
-            <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-primary animate-pulse-glow" />
-          </button>
+
+          {searchOpen && (
+            <div className="absolute top-12 left-0 md:left-auto md:right-0 w-72 glass-card rounded-xl shadow-xl border border-border/50 overflow-hidden z-50">
+              <div className="p-3 border-b border-border/30">
+                <input
+                  ref={inputRef}
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder="ابحث عن عملة..."
+                  className="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+                  dir="rtl"
+                />
+              </div>
+              {query.trim() && (
+                <div className="max-h-64 overflow-y-auto">
+                  {filtered.length === 0 ? (
+                    <p className="p-4 text-xs text-muted-foreground text-center">لا توجد نتائج</p>
+                  ) : (
+                    filtered.map((coin) => {
+                      const change = Number.parseFloat(coin.changePercent24Hr);
+                      return (
+                        <button
+                          key={coin.id}
+                          onClick={() => {
+                            scrollTo("coins");
+                            setSearchOpen(false);
+                            setQuery("");
+                          }}
+                          className="w-full flex items-center justify-between gap-2 p-3 hover:bg-secondary/40 transition-colors text-right"
+                        >
+                          <div>
+                            <p className="text-sm font-medium">{coin.name}</p>
+                            <p className="text-xs text-muted-foreground font-mono">{coin.symbol}</p>
+                          </div>
+                          <div className="text-left">
+                            <p className="text-sm font-mono">{formatPrice(coin.priceUsd)}</p>
+                            <p className={`text-xs font-mono ${change >= 0 ? "text-success" : "text-destructive"}`}>
+                              {change >= 0 ? "+" : ""}{change.toFixed(2)}%
+                            </p>
+                          </div>
+                        </button>
+                      );
+                    })
+                  )}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </header>
