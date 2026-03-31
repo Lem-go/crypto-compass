@@ -1,0 +1,70 @@
+{
+  "nav": {
+    "dashboard": "Dashboard",
+    "coins": "Coins",
+    "marketIndex": "Market Index",
+    "converter": "Converter",
+    "topMovers": "Top Movers"
+  },
+  "header": {
+    "welcome": "Welcome to",
+    "subtitle": "Track market sentiment, cryptocurrency prices, and latest data in one place."
+  },
+  "marketStats": {
+    "title": "Market Stats",
+    "marketCap": "Market Cap",
+    "volume24h": "24h Volume",
+    "btcDominance": "Bitcoin Dominance",
+    "ethereumDominance": "Ethereum Dominance"
+  },
+  "coinTable": {
+    "title": "Top Coins",
+    "updateFrequency": "Updates every minute",
+    "rank": "Rank",
+    "name": "Name",
+    "symbol": "Symbol",
+    "price": "Price",
+    "change24h": "24h Change",
+    "marketCap": "Market Cap",
+    "volume": "Volume",
+    "noData": "No data"
+  },
+  "sentimentGauge": {
+    "title": "Fear & Greed Index",
+    "fear": "Fear",
+    "neutral": "Neutral",
+    "greed": "Greed",
+    "extremefear": "Extreme Fear",
+    "extremegreed": "Extreme Greed"
+  },
+  "dominanceChart": {
+    "title": "Coin Dominance",
+    "bitcoin": "Bitcoin",
+    "ethereum": "Ethereum",
+    "others": "Others"
+  },
+  "cryptoConverter": {
+    "title": "Cryptocurrency Converter",
+    "from": "From",
+    "to": "To",
+    "amount": "Amount",
+    "result": "Result"
+  },
+  "btcChart": {
+    "title": "Bitcoin Price",
+    "price": "Price",
+    "time": "Time"
+  },
+  "newsFeed": {
+    "title": "Latest News"
+  },
+  "notFound": {
+    "title": "Oops! Page not found",
+    "description": "The page you are looking for does not exist",
+    "backHome": "Return to Home"
+  },
+  "footer": {
+    "copyright": "All rights reserved © 2026"
+  },
+  "language": "Language"
+}

@@ -1,4 +1,5 @@
 import { X, TrendingUp, TrendingDown, BarChart3, DollarSign, Coins } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { CoinData, formatPrice, formatUsd } from "@/hooks/useCryptoData";
 
 interface CoinDetailModalProps {
@@ -7,6 +8,7 @@ interface CoinDetailModalProps {
 }
 
 const CoinDetailModal = ({ coin, onClose }: CoinDetailModalProps) => {
+  const { t, i18n } = useTranslation();
   const change = Number.parseFloat(coin.changePercent24Hr);
   const mcap = Number.parseFloat(coin.marketCapUsd);
   const volume = Number.parseFloat(coin.volumeUsd24Hr);
@@ -37,7 +39,7 @@ const CoinDetailModal = ({ coin, onClose }: CoinDetailModalProps) => {
             <h2 className="text-xl font-bold">{coin.name}</h2>
             <div className="flex items-center gap-2 mt-0.5">
               <span className="text-sm text-muted-foreground font-mono">{coin.symbol}</span>
-              <span className="text-xs bg-secondary px-2 py-0.5 rounded">المرتبة #{coin.rank}</span>
+              <span className="text-xs bg-secondary px-2 py-0.5 rounded">{i18n.language === 'ar' ? 'المرتبة' : 'Rank'} #{coin.rank}</span>
             </div>
           </div>
         </div>
@@ -47,24 +49,24 @@ const CoinDetailModal = ({ coin, onClose }: CoinDetailModalProps) => {
           <p className="text-3xl font-bold font-mono">{formatPrice(coin.priceUsd)}</p>
           <div className={`flex items-center gap-1 mt-1 text-sm font-mono font-medium ${positive ? "text-success" : "text-destructive"}`}>
             {positive ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
-            {positive ? "+" : ""}{change.toFixed(2)}% خلال 24 ساعة
+            {positive ? "+" : ""}{change.toFixed(2)}% {i18n.language === 'ar' ? 'خلال 24 ساعة' : 'in 24 hours'}
           </div>
         </div>
 
         {/* Sparkline */}
         {coin.sparkline.length > 2 && (
           <div className="mb-6 p-4 bg-secondary/30 rounded-lg">
-            <p className="text-xs text-muted-foreground mb-2">اتجاه السعر — آخر 7 أيام</p>
+            <p className="text-xs text-muted-foreground mb-2">{i18n.language === 'ar' ? 'اتجاه السعر — آخر 7 أيام' : 'Price trend — Last 7 days'}</p>
             <SparkLineLarge prices={coin.sparkline} positive={positive} />
           </div>
         )}
 
         {/* Stats grid */}
         <div className="grid grid-cols-2 gap-3">
-          <StatItem icon={DollarSign} label="القيمة السوقية" value={formatUsd(mcap)} />
-          <StatItem icon={BarChart3} label="حجم التداول 24س" value={formatUsd(volume)} />
-          <StatItem icon={Coins} label="المعروض المتداول" value={supply >= 1e9 ? `${(supply / 1e9).toFixed(1)}B` : supply >= 1e6 ? `${(supply / 1e6).toFixed(1)}M` : supply.toLocaleString()} />
-          <StatItem icon={DollarSign} label="السعر / وحدة" value={price < 0.01 ? `$${price.toFixed(8)}` : formatPrice(coin.priceUsd)} />
+          <StatItem icon={DollarSign} label={t("marketStats.marketCap")} value={formatUsd(mcap)} />
+          <StatItem icon={BarChart3} label={t("marketStats.volume24h")} value={formatUsd(volume)} />
+          <StatItem icon={Coins} label={i18n.language === 'ar' ? 'المعروض المتداول' : 'Circulating Supply'} value={supply >= 1e9 ? `${(supply / 1e9).toFixed(1)}B` : supply >= 1e6 ? `${(supply / 1e6).toFixed(1)}M` : supply.toLocaleString()} />
+          <StatItem icon={DollarSign} label={i18n.language === 'ar' ? 'السعر / وحدة' : 'Price per unit'} value={price < 0.01 ? `$${price.toFixed(8)}` : formatPrice(coin.priceUsd)} />
         </div>
       </div>
     </div>

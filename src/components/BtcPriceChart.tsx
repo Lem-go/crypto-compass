@@ -1,7 +1,9 @@
+import { useTranslation } from "react-i18next";
 import { useCoins, formatPrice } from "@/hooks/useCryptoData";
 import { AreaChart, Area, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
 const BtcPriceChart = () => {
+  const { t, i18n } = useTranslation();
   const { data: coins, isLoading } = useCoins();
   const btc = coins?.find((c) => c.id === "bitcoin");
   const sparkline = btc?.sparkline ?? [];
@@ -24,16 +26,16 @@ const BtcPriceChart = () => {
     .map((price, i, arr) => ({
       idx: i,
       price,
-      label: `${Math.round((i / (arr.length - 1)) * 7)} أيام`,
+      label: `${Math.round((i / (arr.length - 1)) * 7)} ${i18n.language === 'ar' ? 'أيام' : 'days'}`,
     }));
 
   return (
     <div className="glass-card p-6">
       <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
         <div>
-          <h2 className="text-lg font-semibold">سعر البيتكوين — آخر 7 أيام</h2>
+          <h2 className="text-lg font-semibold">{t("btcChart.title")} — {i18n.language === 'ar' ? 'آخر 7 أيام' : 'Last 7 days'}</h2>
           <p className="text-sm text-muted-foreground mt-0.5">
-            السعر الحالي: <span className="font-mono text-foreground">{formatPrice(btc?.priceUsd ?? "0")}</span>
+            {i18n.language === 'ar' ? 'السعر الحالي' : 'Current price'}: <span className="font-mono text-foreground">{formatPrice(btc?.priceUsd ?? "0")}</span>
             <span className={`mr-2 font-mono text-xs ${positive ? "text-success" : "text-destructive"}`}>
               ({positive ? "+" : ""}{change.toFixed(2)}%)
             </span>
@@ -68,7 +70,7 @@ const BtcPriceChart = () => {
               fontFamily: "JetBrains Mono, monospace",
             }}
             labelFormatter={() => ""}
-            formatter={(value: number) => [`$${value.toLocaleString(undefined, { maximumFractionDigits: 2 })}`, "السعر"]}
+            formatter={(value: number) => [`$${value.toLocaleString(undefined, { maximumFractionDigits: 2 })}`, i18n.language === 'ar' ? "السعر" : "Price"]}
           />
           <Area
             type="monotone"

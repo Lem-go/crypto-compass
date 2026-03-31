@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { TrendingUp, TrendingDown, ArrowUpDown, ChevronDown } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useCoins, formatPrice } from "@/hooks/useCryptoData";
 import CoinDetailModal from "./CoinDetailModal";
 import type { CoinData } from "@/hooks/useCryptoData";
@@ -13,6 +14,7 @@ const COIN_ICONS: Record<string, string> = {
 type SortKey = "rank" | "price" | "change" | "mcap";
 
 const CoinTable = () => {
+  const { t, i18n } = useTranslation();
   const { data: coins, isLoading, isError, dataUpdatedAt } = useCoins();
   const [sortKey, setSortKey] = useState<SortKey>("rank");
   const [sortAsc, setSortAsc] = useState(true);
@@ -34,7 +36,8 @@ const CoinTable = () => {
     return sortAsc ? diff : -diff;
   }) : [];
 
-  const lastUpdate = dataUpdatedAt ? new Date(dataUpdatedAt).toLocaleTimeString("ar-EG") : "";
+  const locale = i18n.language === 'ar' ? 'ar-SA' : 'en-US';
+  const lastUpdate = dataUpdatedAt ? new Date(dataUpdatedAt).toLocaleTimeString(locale) : "";
 
   return (
     <>
@@ -42,19 +45,19 @@ const CoinTable = () => {
         <div className="p-6 border-b border-border/50">
           <div className="flex items-center justify-between gap-4 flex-wrap">
             <div>
-              <h2 className="text-xl font-semibold">أبرز العملات</h2>
+              <h2 className="text-xl font-semibold">{t("coinTable.title")}</h2>
               <p className="text-sm text-muted-foreground mt-1">
-                بيانات مباشرة من CoinGecko — تحديث كل دقيقة
+                {t("coinTable.updateFrequency")}
               </p>
             </div>
             <div className="flex items-center gap-3">
               {lastUpdate && (
                 <span className="text-[10px] text-muted-foreground font-mono">
-                  آخر تحديث: {lastUpdate}
+                  {i18n.language === 'ar' ? 'آخر تحديث' : 'Last update'}: {lastUpdate}
                 </span>
               )}
               {isLoading && (
-                <span className="text-xs text-muted-foreground animate-pulse">جاري التحديث...</span>
+                <span className="text-xs text-muted-foreground animate-pulse">{i18n.language === 'ar' ? 'جاري التحديث...' : 'Updating...'}</span>
               )}
             </div>
           </div>
@@ -62,7 +65,7 @@ const CoinTable = () => {
 
         {isError && (
           <div className="p-8 text-center text-destructive text-sm">
-            تعذر جلب الأسعار الآن. نحاول التحديث تلقائياً خلال دقيقة.
+            {i18n.language === 'ar' ? 'تعذر جلب الأسعار الآن. نحاول التحديث تلقائياً خلال دقيقة.' : 'Unable to fetch prices now. We are trying to update automatically in a minute.'}
           </div>
         )}
 
@@ -71,11 +74,11 @@ const CoinTable = () => {
             <thead>
               <tr className="border-b border-border/30">
                 <SortTh label="#" sortKey="rank" current={sortKey} asc={sortAsc} onClick={toggleSort} />
-                <th className="text-right text-xs text-muted-foreground font-medium p-4">العملة</th>
-                <SortTh label="السعر" sortKey="price" current={sortKey} asc={sortAsc} onClick={toggleSort} />
-                <SortTh label="التغيير 24س" sortKey="change" current={sortKey} asc={sortAsc} onClick={toggleSort} />
-                <SortTh label="القيمة السوقية" sortKey="mcap" current={sortKey} asc={sortAsc} onClick={toggleSort} className="hidden sm:table-cell" />
-                <th className="text-right text-xs text-muted-foreground font-medium p-4 hidden md:table-cell">الاتجاه</th>
+                <th className="text-right text-xs text-muted-foreground font-medium p-4">{t("coinTable.name")}</th>
+                <SortTh label={t("coinTable.price")} sortKey="price" current={sortKey} asc={sortAsc} onClick={toggleSort} />
+                <SortTh label={t("coinTable.change24h")} sortKey="change" current={sortKey} asc={sortAsc} onClick={toggleSort} />
+                <SortTh label={t("coinTable.marketCap")} sortKey="mcap" current={sortKey} asc={sortAsc} onClick={toggleSort} className="hidden sm:table-cell" />
+                <th className="text-right text-xs text-muted-foreground font-medium p-4 hidden md:table-cell">{i18n.language === 'ar' ? 'الاتجاه' : 'Trend'}</th>
               </tr>
             </thead>
             <tbody>

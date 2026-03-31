@@ -1,16 +1,19 @@
 import { useState, useRef, useEffect } from "react";
 import { Search, X, Menu } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useCoins, formatPrice } from "@/hooks/useCryptoData";
+import LanguageSwitcher from "./LanguageSwitcher";
 
 const NAV_ITEMS = [
-  { label: "لوحة التحكم", target: "stats" },
-  { label: "العملات", target: "coins" },
-  { label: "مؤشر السوق", target: "sentiment" },
-  { label: "المحوّل", target: "converter" },
-  { label: "الأكثر تحركاً", target: "movers" },
+  { labelKey: "nav.dashboard", target: "stats" },
+  { labelKey: "nav.coins", target: "coins" },
+  { labelKey: "nav.marketIndex", target: "sentiment" },
+  { labelKey: "nav.converter", target: "converter" },
+  { labelKey: "nav.topMovers", target: "movers" },
 ];
 
 const Header = () => {
+  const { t, i18n } = useTranslation();
   const [searchOpen, setSearchOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -55,7 +58,7 @@ const Header = () => {
               onClick={() => scrollTo(item.target)}
               className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
             >
-              {item.label}
+              {t(item.labelKey)}
             </button>
           ))}
         </nav>
@@ -78,15 +81,15 @@ const Header = () => {
                     ref={inputRef}
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
-                    placeholder="ابحث عن عملة..."
+                    placeholder={i18n.language === 'ar' ? 'ابحث عن عملة...' : 'Search for a coin...'}
                     className="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
-                    dir="rtl"
+                    dir={i18n.language === 'ar' ? 'rtl' : 'ltr'}
                   />
                 </div>
                 {query.trim() && (
                   <div className="max-h-64 overflow-y-auto">
                     {filtered.length === 0 ? (
-                      <p className="p-4 text-xs text-muted-foreground text-center">لا توجد نتائج</p>
+                      <p className="p-4 text-xs text-muted-foreground text-center">{i18n.language === 'ar' ? 'لا توجد نتائج' : 'No results'}</p>
                     ) : (
                       filtered.map((coin) => {
                         const change = Number.parseFloat(coin.changePercent24Hr);
@@ -116,6 +119,9 @@ const Header = () => {
             )}
           </div>
 
+          {/* Language Switcher */}
+          <LanguageSwitcher />
+
           {/* Mobile menu toggle */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -134,9 +140,9 @@ const Header = () => {
               <button
                 key={item.target}
                 onClick={() => scrollTo(item.target)}
-                className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors py-2.5 px-3 rounded-lg hover:bg-secondary/40 text-right"
+                className={`text-sm font-medium text-muted-foreground hover:text-primary transition-colors py-2.5 px-3 rounded-lg hover:bg-secondary/40 ${i18n.language === 'ar' ? 'text-right' : 'text-left'}`}
               >
-                {item.label}
+                {t(item.labelKey)}
               </button>
             ))}
           </div>

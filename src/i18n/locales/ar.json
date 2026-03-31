@@ -1,0 +1,70 @@
+{
+  "nav": {
+    "dashboard": "لوحة التحكم",
+    "coins": "العملات",
+    "marketIndex": "مؤشر السوق",
+    "converter": "المحوّل",
+    "topMovers": "الأكثر تحركاً"
+  },
+  "header": {
+    "welcome": "مرحباً بك في",
+    "subtitle": "تابع مشاعر السوق، أسعار العملات الرقمية، وأحدث البيانات في مكان واحد."
+  },
+  "marketStats": {
+    "title": "إحصائيات السوق",
+    "marketCap": "رأس المال السوقي",
+    "volume24h": "حجم التداول (24ساعة)",
+    "btcDominance": "هيمنة البتكوين",
+    "ethereumDominance": "هيمنة الإيثيريوم"
+  },
+  "coinTable": {
+    "title": "أبرز العملات",
+    "updateFrequency": "تحديث كل دقيقة",
+    "rank": "الترتيب",
+    "name": "الاسم",
+    "symbol": "الرمز",
+    "price": "السعر",
+    "change24h": "التغيير (24ساعة)",
+    "marketCap": "رأس المال السوقي",
+    "volume": "حجم التداول",
+    "noData": "لا توجد بيانات"
+  },
+  "sentimentGauge": {
+    "title": "مؤشر الخوف والطمع",
+    "fear": "خوف",
+    "neutral": "محايد",
+    "greed": "طمع",
+    "extremefear": "خوف شديد",
+    "extremegreed": "طمع شديد"
+  },
+  "dominanceChart": {
+    "title": "هيمنة العملات",
+    "bitcoin": "البتكوين",
+    "ethereum": "الإيثيريوم",
+    "others": "الأخرى"
+  },
+  "cryptoConverter": {
+    "title": "محوّل العملات الرقمية",
+    "from": "من",
+    "to": "إلى",
+    "amount": "المبلغ",
+    "result": "النتيجة"
+  },
+  "btcChart": {
+    "title": "سعر البتكوين",
+    "price": "السعر",
+    "time": "الوقت"
+  },
+  "newsFeed": {
+    "title": "آخر الأخبار"
+  },
+  "notFound": {
+    "title": "عذراً! لم يتم العثور على الصفحة",
+    "description": "الصفحة التي تبحث عنها غير موجودة",
+    "backHome": "العودة للرئيسية"
+  },
+  "footer": {
+    "copyright": "جميع الحقوق محفوظة © 2026"
+  },
+  "language": "اللغة"
+}
