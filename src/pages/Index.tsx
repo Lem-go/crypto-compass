@@ -3,6 +3,7 @@ import MarketStats from "@/components/MarketStats";
 import SentimentGauge from "@/components/SentimentGauge";
 import CoinTable from "@/components/CoinTable";
 import NewsFeed from "@/components/NewsFeed";
+import CryptoConverter from "@/components/CryptoConverter";
 
 const Index = () => {
   return (
@@ -16,7 +17,7 @@ const Index = () => {
             مرحباً بك في <span className="text-gradient-primary">CryptoLens</span>
           </h1>
           <p className="text-muted-foreground mt-2 max-w-lg">
-            تابع مشاعر السوق، أسعار العملات الرقمية، وأحدث الأخبار في مكان واحد.
+            تابع مشاعر السوق، أسعار العملات الرقمية، وأحدث البيانات في مكان واحد.
           </p>
         </div>
         <MarketStats />
@@ -32,6 +33,9 @@ const Index = () => {
             <div id="sentiment" className="scroll-mt-20">
               <SentimentGauge />
             </div>
+            <div id="converter" className="scroll-mt-20">
+              <CryptoConverter />
+            </div>
             <div id="movers" className="scroll-mt-20">
               <NewsFeed />
             </div>
@@ -43,6 +47,7 @@ const Index = () => {
       <footer className="border-t border-border/40 py-8">
         <div className="container mx-auto px-4 text-center text-xs text-muted-foreground">
           <p>CryptoLens © 2026 — منصة تحليل مشاعر سوق الكريبتو</p>
+          <p className="mt-1">البيانات من CoinGecko و Alternative.me — يتم تحديثها تلقائياً</p>
         </div>
       </footer>
     </div>
